@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 /// add api
 
 
@@ -8,11 +8,17 @@ export default function Result() {
   const searchParams = useSearchParams();
   const dataString = searchParams.get('data');
   const data = dataString ? JSON.parse(decodeURIComponent(dataString)) : null;
+  const router = useRouter()
 
   return (
 
     <div>
-      <h1>Result Page</h1>
+      <button type="button" className="bg-red-500 hover:bg-red-700 text-white 
+        font-bold py-2 px-4 m-4 rounded-full" 
+        onClick={() => router.push('/')}>
+        戻る
+        </button> 
+      <h1>Back Page</h1>
       <div>
         {Array.isArray(data) ? (
           data.map((evaluation, index) => (

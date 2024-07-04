@@ -8,7 +8,7 @@ export default function Home() {
     <main>
       <div>
         <InputForm />
-        <Link href="/result">here</Link>
+        <Link href="/commons">here</Link>
       </div>
     </main>
   );
