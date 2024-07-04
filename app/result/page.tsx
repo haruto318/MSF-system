@@ -8,8 +8,8 @@ export default function Result() {
   const dataString = searchParams.get('data');
   const data = dataString ? JSON.parse(decodeURIComponent(dataString)) : null;
 
-  
   return (
+    
     <div>
       <h1>Result Page</h1>
       <div style={{ marginTop: '20px' }}>
