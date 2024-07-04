@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+/// add api
 
 
 export default function Result() {
@@ -9,7 +10,7 @@ export default function Result() {
   const data = dataString ? JSON.parse(decodeURIComponent(dataString)) : null;
 
   return (
-    
+
     <div>
       <h1>Result Page</h1>
       <div style={{ marginTop: '20px' }}>
