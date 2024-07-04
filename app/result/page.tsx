@@ -13,7 +13,7 @@ export default function Result() {
 
     <div>
       <h1>Result Page</h1>
-      <div style={{ marginTop: '20px' }}>
+      <div>
         {Array.isArray(data) ? (
           data.map((evaluation, index) => (
             <div key={index} style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc' }}>
