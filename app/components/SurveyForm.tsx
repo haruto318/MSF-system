@@ -47,7 +47,7 @@ export default function SurveyForm({ groupId, groupNum }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-4 bg-white rounded shadow-md">
-        <h1 className="text-2xl font-bold text-center">Survey for Group {groupId}</h1>
+        <h1 className="text-2xl font-bold text-center">共通点回答フォーム {groupId}</h1>
         <p className="text-center text-gray-500">(チーム数: {groupNum})</p>
         
         <form className="space-y-10">

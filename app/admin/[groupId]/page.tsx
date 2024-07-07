@@ -2,7 +2,15 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs, where, query } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { useParams, useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
+
+type CommonPointEvaluation = {
+  team_name: string;
+  common_point: string;
+  rate: number;
+  comment: string;
+};
 
 export default function GroupPage() {
   const { groupId } = useParams(); // URLパラメータからgroupIdを取得
@@ -12,6 +20,9 @@ export default function GroupPage() {
   const data = dataString ? JSON.parse(decodeURIComponent(dataString)) : null;
 
   const [answers, setAnswers] = useState([]);
+
+  const [evaluations, setEvaluations] = useState<CommonPointEvaluation[]>([]);
+  const router = useRouter()
 
   useEffect(() => {
     const fetchAnswers = async () => {
@@ -30,6 +41,71 @@ export default function GroupPage() {
       fetchAnswers();
     }
   }, [groupId]);
+
+  const createPrompt = (answers) => {
+    return `
+    役割：あなたはイベントの審査員です。
+    目的：以下についてそれぞれ「共通点の希少性を10点満点で評価せよ」希少性が高いものを10点とし、低いものは1点とせよ。
+    前提：あなたがつけた評価点数は他チームの共通点と重複しないようにせよ。レスポンスはjson形式にせよ。json形式のレスポンスには"results"を含まない。チームごとに「チーム名、共通点、審査員の点数、審査員のコメント」の配列を返却せよ。審査員は「IT系会社の社長」とし、その人物像をもとに本人が言いそうなコメントや、IT系会社の社長の名言のような形式で評価せよ。審査員がミッキーマウスならディズニーなど、関連性が高いものについては、贔屓の点数をつけて良い。審査員のコメントはバラエティー的に面白くしてほしい。
+    リクエスト：
+    {
+      ${answers.map(answer => {
+        return `
+        {
+          チーム名: "${answer.team}",
+          共通点: "${answer.answers.answer}"
+        },`
+      })}
+    }
+    レスポンス例：
+    [
+      {
+        チーム名: "A",
+        共通点: "英語が嫌い",
+        審査員の点数: 1
+        審査員のコメント: "英語が嫌いだと！それだと将来活躍できなくなるぞ"
+      },
+      {
+        チーム名: "B",
+        共通点: "メンバー全員MacBookを使っている",
+        審査員の点数: 6
+        審査員のコメント: "MacBookは優秀だ！ただし用途によって使い分けが大事"
+      },
+    ]
+    `
+  }
+
+  const handleEvaluate = async () => {
+    if (answers.length != data){ 
+      console.log("not enough answers")
+      return 
+    }
+
+    const prompt = createPrompt(answers);
+
+    try {
+      const response = await axios.post('/api/chatgpt', { prompt });
+      console.log('Response data:', response.data);
+
+      // レスポンスデータを配列形式に変換
+      const transformedEvaluations: CommonPointEvaluation[] = response.data.map((item: any) => ({
+        team_name: item.チーム名,
+        common_point: item.共通点,
+        rate: item.審査員の点数,
+        comment: item.審査員のコメント,
+      }));
+
+      setEvaluations(transformedEvaluations);
+      resultHandleClick(transformedEvaluations);
+    } catch (error) {
+      console.error('Error evaluating common points:', error);
+    }
+  };
+
+  const resultHandleClick = (evaluations: CommonPointEvaluation[]) => {
+    router.push(`/result?data=${encodeURIComponent(JSON.stringify(evaluations))}`);
+  };
+
 
   // アルファベットの配列を作成
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('');
@@ -79,7 +155,7 @@ export default function GroupPage() {
           <button 
             type="button" 
             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mb-6 rounded-full"
-            onClick={() => router.push('/')}
+            onClick={handleEvaluate}
           >採点</button>
         </div>
       </div>
