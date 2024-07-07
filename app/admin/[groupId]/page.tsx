@@ -42,11 +42,11 @@ export default function GroupPage() {
     }
   }, [groupId]);
 
-  const createPrompt = (answers) => {
+  const createPrompt = (answers, judge) => {
     return `
     役割：あなたはイベントの審査員です。
     目的：以下についてそれぞれ「共通点の希少性を10点満点で評価せよ」希少性が高いものを10点とし、低いものは1点とせよ。
-    前提：あなたがつけた評価点数は他チームの共通点と重複しないようにせよ。レスポンスはjson形式にせよ。json形式のレスポンスには"results"を含まない。チームごとに「チーム名、共通点、審査員の点数、審査員のコメント」の配列を返却せよ。審査員は「IT系会社の社長」とし、その人物像をもとに本人が言いそうなコメントや、IT系会社の社長の名言のような形式で評価せよ。審査員がミッキーマウスならディズニーなど、関連性が高いものについては、贔屓の点数をつけて良い。審査員のコメントはバラエティー的に面白くしてほしい。
+    前提：あなたがつけた評価点数は他チームの共通点と重複しないようにせよ。レスポンスはjson形式にせよ。json形式のレスポンスには"results"を含まない。チームごとに「チーム名、共通点、審査員の点数、審査員のコメント」の配列を返却せよ。審査員は「${judge}」とし、その人物像をもとに本人が言いそうなコメントや、IT系会社の社長の名言のような形式で評価せよ。審査員がミッキーマウスならディズニーなど、関連性が高いものについては、贔屓の点数をつけて良い。審査員のコメントはバラエティー的に面白くしてほしい。
     リクエスト：
     {
       ${answers.map(answer => {
@@ -76,12 +76,12 @@ export default function GroupPage() {
   }
 
   const handleEvaluate = async () => {
-    if (answers.length != data){ 
+    if (answers.length != data.number){ 
       console.log("not enough answers")
       return 
     }
 
-    const prompt = createPrompt(answers);
+    const prompt = createPrompt(answers, data.judge);
 
     try {
       const response = await axios.post('/api/chatgpt', { prompt });
@@ -112,13 +112,13 @@ export default function GroupPage() {
 
   return (
     <div>
-      <h1>{groupId}</h1>
+      <h1>{groupId} {data.judge}</h1>
       <ul>
         {answers.map((answer, index) => (
           <li key={index}>{JSON.stringify(answer)}</li>
         ))}
       </ul>
-      {Array.from({ length: data }, (_, index) => (
+      {Array.from({ length: data.number }, (_, index) => (
         <div key={index} >
           {alphabet[index]}
         </div>
@@ -134,8 +134,9 @@ export default function GroupPage() {
         </button>
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-6">AI共通点ゲーム</h1>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Array.from({ length: data }, (_, index) => (
+            {Array.from({ length: data.number }, (_, index) => (
               <div key={index} className="flex items-center space-x-5 p-4 ">
                 <div className="text-3xl font-semibold mb-2">
                   <h3>{alphabet[index]}</h3>

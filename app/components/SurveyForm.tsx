@@ -52,7 +52,7 @@ export default function SurveyForm({ groupId, groupNum }) {
         
         <form className="space-y-10">
           <div className="relative h-10 w-full">
-          <label className="block text-sm font-medium text-gray-700 mt-2">Select Team</label>
+            <label className="block text-sm font-medium text-gray-700 mt-2">Select Team</label>
             <select 
               value={team} 
               onChange={(e) => setTeam(e.target.value)} 
