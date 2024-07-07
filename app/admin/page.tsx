@@ -29,7 +29,7 @@ export default function Dashboard() {
         <div key={index}>
           <button type="button" 
             className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-8 mb-6 rounded-lg"
-            onClick={() => router.push(`/admin/${group.docId}`)}>
+            onClick={() => router.push(`/admin/${group.docId}?data=${encodeURIComponent(JSON.stringify(group.docData.number))}`)}>
               {group.docData.name}
           </button>
         </div>
