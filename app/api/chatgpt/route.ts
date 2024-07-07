@@ -1,34 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
-const openai = new OpenAI({
-  apiKey: process.env.API_KEY,
-});
+const OPENAI_API_KEY = process.env.API_KEY;
 
-
-export async function POST(request: NextRequest) {
-  const data = await request.json();
-  const model = "gpt-3.5-turbo";
-  const temperature = 1; //回答内容の一貫性、確信度を指定する。0に近いほどより一貫性があり、確信度の高い内容を出力する。２に近いほど、より冒険的で創造的な内容を出力する。0~2の間で指定する。
-  const seed = 1234; // 乱数のシード値。同じ値を指定すると同じ結果が得られる。整数値を指定する。
-  const n = 1; // 生成する回答の数。ただし、回答数が増えるほど、その分トークンを消費する。
-  const max_tokens = 150; // 生成する最大トークン数
+export async function POST(req: NextRequest) {
+  const { prompt } = await req.json();
 
   try {
-    const chatCompletion = await openai.chat.completions.create({
-      messages: [{ role: "user", content: data }],
-      temperature: temperature,
-      seed: seed,
-      model: model,
-      n: n,
-      // max_tokens: max_tokens,
-    });
-    return NextResponse.json(
-      { data: chatCompletion.choices[0].message.content },
-      { status: 200 }
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1500,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
     );
+
+    const evaluations = response.data.choices[0].message.content.trim();
+    console.log('Evaluations:', evaluations); // ここで評価結果をログ出力
+
+    return NextResponse.json(JSON.parse(evaluations));
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ data: error }, { status: 500 });
+    console.error('Error calling OpenAI API:', error.response?.data || error.message);
+    return NextResponse.json({ error: 'Error calling OpenAI API' }, { status: 500 });
   }
 }
