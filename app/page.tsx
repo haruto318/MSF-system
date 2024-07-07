@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import CreateGroup from "./create_group/page";
 
 export default function Home() {
+
   return (
     <main>
       <div>

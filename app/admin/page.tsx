@@ -1,29 +1,54 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 import { db } from '../firebase';
 
 export default function Dashboard() {
-  const [answers, setAnswers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [url, setUrl] = useState('');
+  const router = useRouter();
+  console.log(url)
 
   useEffect(() => {
-    const fetchAnswers = async () => {
-      const querySnapshot = await getDocs(collection(db, 'answers'));
-      const answersData = querySnapshot.docs.map(doc => doc.data());
-      setAnswers(answersData);
+    if (typeof window !== 'undefined') {
+      setUrl(window.location.href);
+    }
+
+    const fetchGroups = async () => {
+      const querySnapshot = await getDocs(collection(db, 'groups'));
+      const groupsData = querySnapshot.docs.map((doc) => ({
+        docId: doc.id,
+        docData: doc.data(),
+      }));
+      setGroups(groupsData);
+      console.log(groupsData[0].docId)
     };
 
-    fetchAnswers();
+    fetchGroups();
   }, []);
+
+  const copyToClipboard = async (url: string) => {
+    await global.navigator.clipboard.writeText(url);
+  };
 
   return (
     <div>
       <h1>Admin Dashboard</h1>
-      <ul>
-        {answers.map((answer, index) => (
-          <li key={index}>{JSON.stringify(answer)}</li>
-        ))}
-      </ul>
+      {groups.map((group, index) => (
+        <div key={index}>
+          <button type="button" 
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-8 mb-6 rounded-lg"
+            onClick={() => router.push(`/admin/${group.docId}?data=${encodeURIComponent(JSON.stringify(group.docData))}`)}>
+              {group.docData.name}
+          </button>
+          <button type="button" 
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-8 mb-6 rounded-lg"
+            onClick={() => copyToClipboard(url.replace("/admin", `/form/${group.docId}`))}>
+              回答フォームURLをコピー
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

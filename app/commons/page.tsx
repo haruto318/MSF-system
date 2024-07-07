@@ -29,7 +29,7 @@ export default function Commons() {
       </button>
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-6">AI共通点ゲーム</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {Array.isArray(data) ? (
             data.map((evaluation, index) => (
               <div key={index} className="flex items-center space-x-5 p-4 ">
@@ -47,7 +47,7 @@ export default function Commons() {
         </div>
         <button 
           type="button" 
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mb-6 rounded-lg"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mb-6 rounded-full"
           onClick={() => router.push('/')}
         >採点</button>
       </div>
