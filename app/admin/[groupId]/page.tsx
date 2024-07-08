@@ -112,22 +112,8 @@ export default function GroupPage() {
 
   return (
     <div>
-      <h1>{groupId} {data.judge}</h1>
-      <ul>
-        {answers.map((answer, index) => (
-          <li key={index}>{JSON.stringify(answer)}</li>
-        ))}
-      </ul>
-      {Array.from({ length: data.number }, (_, index) => (
-        <div key={index} >
-          {alphabet[index]}
-        </div>
-      ))}
-
-{/*  */}
       <div className="container mx-auto p-6">
-        <button type="button" 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-6 rounded-full"
+        <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-6 rounded-full"
           onClick={() => router.push('/')}
         >
           戻る

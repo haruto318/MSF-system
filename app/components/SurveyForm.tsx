@@ -1,11 +1,22 @@
 'use client';
-import { useState, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { addDoc, collection, getDocs, where, query } from 'firebase/firestore';
 import { db } from '../firebase';
+import { QRCodeCanvas } from "qrcode.react"
 
 export default function SurveyForm({ groupId, groupNum }) {
   const [answers, setAnswers] = useState({});
   const [team, setTeam] = useState("A");
+
+  const [url, setUrl] = useState('');
+  console.log(url)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUrl(window.location.href);
+    }
+  }, []);
+  
 
   const handleSubmit = async () => {
     const fetchAnswers = async () => {
@@ -47,8 +58,11 @@ export default function SurveyForm({ groupId, groupNum }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-4 bg-white rounded shadow-md">
-        <h1 className="text-2xl font-bold text-center">共通点回答フォーム {groupId}</h1>
-        <p className="text-center text-gray-500">(チーム数: {groupNum})</p>
+        <h1 className="text-2xl font-bold text-center">共通点回答フォーム</h1>
+        
+        <div className="flex justify-center">
+          <QRCodeCanvas value={url} size={256}></QRCodeCanvas>
+        </div>
         
         <form className="space-y-10">
           <div className="relative h-10 w-full">
