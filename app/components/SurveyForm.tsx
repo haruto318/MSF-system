@@ -3,10 +3,12 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { addDoc, collection, getDocs, where, query } from 'firebase/firestore';
 import { db } from '../firebase';
 import { QRCodeCanvas } from "qrcode.react"
+import { sleep } from 'openai/core.mjs';
 
 export default function SurveyForm({ groupId, groupNum }) {
   const [answers, setAnswers] = useState({});
   const [team, setTeam] = useState("A");
+  const [selectedIsAll, setSelectedIsAll] = useState(false);
 
   const [url, setUrl] = useState('');
   console.log(url)
@@ -16,6 +18,15 @@ export default function SurveyForm({ groupId, groupNum }) {
       setUrl(window.location.href);
     }
   }, []);
+
+  useEffect(() => {
+    console.log(selectedIsAll)
+  }, [selectedIsAll]);
+
+  const handleIsAllChange = (e) => {
+    // console.log(e.target.value === "YES" ? true : false)
+    setSelectedIsAll(e.target.value === "YES" ? true : false);
+  };
   
 
   const handleSubmit = async () => {
@@ -33,7 +44,8 @@ export default function SurveyForm({ groupId, groupNum }) {
           await addDoc(collection(db, 'answers'), {
             groupId,
             answers,
-            team
+            team,
+            selectedIsAll
           });
           alert('Survey submitted!');
         }
@@ -90,6 +102,30 @@ export default function SurveyForm({ groupId, groupNum }) {
               className="block w-full px-3 py-2 mt-1 text-gray-900 bg-gray-100 border border-gray-300 rounded focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
+
+          <div>
+          <label className="block text-sm font-medium text-gray-700">全員一致？</label>
+            <label>
+              <input
+                type="radio"
+                value="YES"
+                checked={selectedIsAll === true}
+                onChange={handleIsAllChange}
+              />
+              YES
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                value="NO"
+                checked={selectedIsAll === false}
+                onChange={handleIsAllChange}
+              />
+              NO
+            </label>
+          </div>
+
           <div>
             <button type="button" onClick={handleSubmit} className="w-full px-4 py-2 font-bold text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               提出

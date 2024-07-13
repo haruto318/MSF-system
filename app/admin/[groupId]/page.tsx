@@ -18,11 +18,11 @@ export default function GroupPage() {
   const searchParams = useSearchParams();
   const dataString = searchParams.get('data');
   const data = dataString ? JSON.parse(decodeURIComponent(dataString)) : null;
-
+  
   const [answers, setAnswers] = useState([]);
 
   const [evaluations, setEvaluations] = useState<CommonPointEvaluation[]>([]);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchAnswers = async () => {
@@ -72,8 +72,8 @@ export default function GroupPage() {
         審査員のコメント: "MacBookは優秀だ！ただし用途によって使い分けが大事"
       },
     ]
-    `
-  }
+    `;
+  };
 
   const handleEvaluate = async () => {
     if (answers.length != data.number){ 
@@ -93,6 +93,7 @@ export default function GroupPage() {
         common_point: item.共通点,
         rate: item.審査員の点数,
         comment: item.審査員のコメント,
+        isAll: answers != undefined ? answers.find(answer => answer.team == item.チーム名).selectedIsAll : false
       }));
 
       setEvaluations(transformedEvaluations);
@@ -102,10 +103,10 @@ export default function GroupPage() {
     }
   };
 
+  console.log(evaluations);
   const resultHandleClick = (evaluations: CommonPointEvaluation[]) => {
     router.push(`/result?data=${encodeURIComponent(JSON.stringify(evaluations))}`);
   };
-
 
   // アルファベットの配列を作成
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('');
@@ -122,22 +123,30 @@ export default function GroupPage() {
           <h1 className="text-2xl font-bold mb-6">AI共通点ゲーム</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Array.from({ length: data.number }, (_, index) => (
-              <div key={index} className="flex items-center space-x-5 p-4 ">
-                <div className="text-3xl font-semibold mb-2">
-                  <h3>{alphabet[index]}</h3>
-                </div>
-                {answers.some(answer => answer.team === alphabet[index]) ? 
-                  <div className="border-2 border-rose-600 rounded-lg p-4 w-full h-24 max-h-24 overflow-hidden flex items-center justify-center">
-                    <h3 className="text-base break-words line-clamp-2 text-center">{answers[answers.findIndex(answer => answer.team === alphabet[index])].answers.answer}</h3>
-                  </div> 
-                  : 
-                  <div className="border-2 border-rose-600 bg-gray-200 rounded-lg p-4 w-full h-24 max-h-24 overflow-hidden flex items-center justify-center">
-                    <h3 className="text-base break-words line-clamp-2 text-center">Thinking</h3>
+            {Array.from({ length: data.number }, (_, index) => {
+              const answer = answers.find(answer => answer.team === alphabet[index]);
+              return (
+                <div key={index} className="relative flex items-center space-x-5 p-4">
+                  <div className="text-3xl font-semibold mb-2">
+                    <h3>{alphabet[index]}</h3>
                   </div>
-                }
-              </div>
-            ))}
+                  {answer ? (
+                    <div className="border-2 border-rose-600 rounded-lg p-4 w-full h-24 max-h-24 overflow-hidden flex items-center justify-center">
+                      <h3 className="text-base break-words line-clamp-2 text-center">{answer.answers.answer}</h3>
+                      {answer.selectedIsAll && (
+                        <div className="absolute -top-2 -right-3 w-14 h-14 rounded-full bg-[#FF4278] flex items-center justify-center">
+                          <p className="text-white text-xs">全員一致</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="border-2 border-rose-600 bg-gray-200 rounded-lg p-4 w-full h-24 max-h-24 overflow-hidden flex items-center justify-center">
+                      <h3 className="text-base break-words line-clamp-2 text-center">Thinking</h3>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
           <button 
             type="button" 
